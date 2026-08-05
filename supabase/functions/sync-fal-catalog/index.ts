@@ -157,13 +157,13 @@ Deno.serve(async (req) => {
     const falKey = Deno.env.get("FAL_KEY") ?? "";
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return err("AUTH_REQUIRED", "Sign in required", 401);
+    if (!authHeader) return err(req, "AUTH_REQUIRED", "Sign in required", 401);
 
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: userData } = await userClient.auth.getUser();
-    if (!userData.user) return err("AUTH_REQUIRED", "Sign in required", 401);
+    if (!userData.user) return err(req, "AUTH_REQUIRED", "Sign in required", 401);
 
     const admin = createClient(supabaseUrl, serviceKey);
     const { data: profile } = await admin
@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
     const role = profile?.role;
     if (role !== "admin" && role !== "super_admin") {
-      return err("FORBIDDEN", "Admin only", 403);
+      return err(req, "FORBIDDEN", "Admin only", 403);
     }
 
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
@@ -183,7 +183,7 @@ Deno.serve(async (req) => {
     const promoteToCatalog = body.promote_to_catalog !== false;
 
     if (!falKey) {
-      return err("FAL_KEY_MISSING", "FAL_KEY secret is not configured", 500);
+      return err(req, "FAL_KEY_MISSING", "FAL_KEY secret is not configured", 500);
     }
 
     const models = await fetchAllModels(falKey);
@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
       });
       if (error) {
         console.error(error);
-        return err("INVENTORY_UPSERT_FAILED", error.message, 500);
+        return err(req, "INVENTORY_UPSERT_FAILED", error.message, 500);
       }
       inventoryUpserted += chunk.length;
     }
@@ -335,7 +335,7 @@ Deno.serve(async (req) => {
         });
         if (error) {
           console.error(error);
-          return err("CATALOG_UPSERT_FAILED", error.message, 500);
+          return err(req, "CATALOG_UPSERT_FAILED", error.message, 500);
         }
         catalogUpserted += chunk.length;
       }
@@ -348,7 +348,7 @@ Deno.serve(async (req) => {
       )
       .order("unit_price_usd", { ascending: true, nullsFirst: false });
 
-    return json({
+    return json(req, {
       ok: true,
       inventory_count: inventoryUpserted,
       catalog_upserted: catalogUpserted,
@@ -359,6 +359,6 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error(e);
-    return err("INTERNAL_ERROR", e instanceof Error ? e.message : "Unexpected error", 500);
+    return err(req, "INTERNAL_ERROR", e instanceof Error ? e.message : "Unexpected error", 500);
   }
 });

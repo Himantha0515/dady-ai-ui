@@ -15,19 +15,19 @@ Deno.serve(async (req) => {
     const mock = Deno.env.get("MOCK_PROVIDERS") === "true";
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return err("AUTH_REQUIRED", "Sign in required", 401);
+    if (!authHeader) return err(req, "AUTH_REQUIRED", "Sign in required", 401);
 
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: userData, error: userErr } = await userClient.auth.getUser();
-    if (userErr || !userData.user) return err("AUTH_REQUIRED", "Sign in required", 401);
+    if (userErr || !userData.user) return err(req, "AUTH_REQUIRED", "Sign in required", 401);
 
     const body = await req.json();
     const creditPackId = body.credit_pack_id as string;
     const idempotencyKey = body.idempotency_key as string;
     if (!creditPackId || !idempotencyKey) {
-      return err("INVALID_INPUT", "credit_pack_id and idempotency_key are required");
+      return err(req, "INVALID_INPUT", "credit_pack_id and idempotency_key are required");
     }
 
     const admin = createClient(supabaseUrl, serviceKey);
@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       .eq("idempotency_key", idempotencyKey)
       .maybeSingle();
     if (existing) {
-      return json({
+      return json(req, {
         orderId: existing.id,
         razorpayOrderId: existing.provider_order_id,
         amountPaise: existing.amount_paise,
@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
       .eq("id", creditPackId)
       .eq("active", true)
       .single();
-    if (packErr || !pack) return err("INVALID_INPUT", "Credit pack not found");
+    if (packErr || !pack) return err(req, "INVALID_INPUT", "Credit pack not found");
 
     const amountPaise = pack.price_inr * 100;
     let providerOrderId = `order_mock_${crypto.randomUUID()}`;
@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
       if (!rzpRes.ok) {
         const t = await rzpRes.text();
         console.error("razorpay order failed", t);
-        return err("PAYMENT_FAILED", "Could not create payment order", 502);
+        return err(req, "PAYMENT_FAILED", "Could not create payment order", 502);
       }
       const rzp = await rzpRes.json();
       providerOrderId = rzp.id;
@@ -101,10 +101,10 @@ Deno.serve(async (req) => {
 
     if (orderErr || !order) {
       console.error(orderErr);
-      return err("INTERNAL_ERROR", "Could not store order", 500);
+      return err(req, "INTERNAL_ERROR", "Could not store order", 500);
     }
 
-    return json({
+    return json(req, {
       orderId: order.id,
       razorpayOrderId: providerOrderId,
       amountPaise,
@@ -114,6 +114,6 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error(e);
-    return err("INTERNAL_ERROR", "Unexpected error", 500);
+    return err(req, "INTERNAL_ERROR", "Unexpected error", 500);
   }
 });

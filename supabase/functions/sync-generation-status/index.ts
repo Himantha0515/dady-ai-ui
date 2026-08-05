@@ -94,19 +94,19 @@ Deno.serve(async (req) => {
     const falKey = Deno.env.get("FAL_KEY") ?? "";
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return err("AUTH_REQUIRED", "Sign in required", 401);
+    if (!authHeader) return err(req, "AUTH_REQUIRED", "Sign in required", 401);
 
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: userData } = await userClient.auth.getUser();
-    if (!userData.user) return err("AUTH_REQUIRED", "Sign in required", 401);
+    if (!userData.user) return err(req, "AUTH_REQUIRED", "Sign in required", 401);
 
     const body = await req.json().catch(() => ({}));
     const generationId = body.generation_id as string | undefined;
     const forceFail = body.force_fail === true;
     const userStop = body.user_stop === true;
-    if (!generationId) return err("INVALID_INPUT", "generation_id is required");
+    if (!generationId) return err(req, "INVALID_INPUT", "generation_id is required");
 
     const admin = createClient(supabaseUrl, serviceKey);
     const { data: generation, error: genErr } = await admin
@@ -116,7 +116,7 @@ Deno.serve(async (req) => {
       .eq("user_id", userData.user.id)
       .maybeSingle();
 
-    if (genErr || !generation) return err("NOT_FOUND", "Generation not found", 404);
+    if (genErr || !generation) return err(req, "NOT_FOUND", "Generation not found", 404);
 
     const requestId = generation.provider_request_id as string | null;
     const ageMs = Date.now() - new Date(generation.created_at).getTime();
@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
     const USER_STOP_MIN_MS = 3 * 60 * 1000;
 
     if (userStop && ageMs < USER_STOP_MIN_MS) {
-      return err(
+      return err(req, 
         "TOO_EARLY",
         "Stop is available after 3 minutes of generating.",
         400,
@@ -139,7 +139,7 @@ Deno.serve(async (req) => {
     );
 
     if (generation.application_status === "completed") {
-      return json({
+      return json(req, {
         generation_id: generation.id,
         application_status: generation.application_status,
         failure_message: generation.failure_message,
@@ -155,14 +155,14 @@ Deno.serve(async (req) => {
           "Generation never reached the provider. Credits refunded.",
           generation.provider_status || "NO_PROVIDER_REQUEST",
         );
-        return json({
+        return json(req, {
           generation_id: generation.id,
           application_status: "failed_refunded",
           failure_message: "Generation never reached the provider. Credits refunded.",
           synced: true,
         });
       }
-      return json({
+      return json(req, {
         generation_id: generation.id,
         application_status: generation.application_status,
         provider_status: generation.provider_status,
@@ -181,7 +181,7 @@ Deno.serve(async (req) => {
       model?.provider_model_id ||
       "";
     if (!modelPath) {
-      return json({
+      return json(req, {
         generation_id: generation.id,
         application_status: generation.application_status,
         synced: false,
@@ -219,7 +219,7 @@ Deno.serve(async (req) => {
         "Provider job not found. Credits refunded.",
         `HTTP_${statusRes.status}`,
       );
-      return json({
+      return json(req, {
         generation_id: generation.id,
         application_status: "failed_refunded",
         failure_message: "Provider job not found. Credits refunded.",
@@ -236,7 +236,7 @@ Deno.serve(async (req) => {
     if (falStatus === "IN_QUEUE" || falStatus === "IN_PROGRESS") {
       // Already failed locally and fal still running — leave failed; Refresh later can recover.
       if (canRecoverFailed && !userStop) {
-        return json({
+        return json(req, {
           generation_id: generation.id,
           application_status: generation.application_status,
           provider_status: falStatus,
@@ -269,7 +269,7 @@ Deno.serve(async (req) => {
           const failMsg =
             "Stopped. Credits refunded (fal had not finished / charged yet).";
           await failAndRefund(admin, generation, failMsg, "USER_STOPPED");
-          return json({
+          return json(req, {
             generation_id: generation.id,
             application_status: "failed_refunded",
             failure_message: failMsg,
@@ -293,7 +293,7 @@ Deno.serve(async (req) => {
             failMsg,
             forceFail ? "CLIENT_TIMEOUT" : "STUCK_TIMEOUT",
           );
-          return json({
+          return json(req, {
             generation_id: generation.id,
             application_status: "failed_refunded",
             failure_message: failMsg,
@@ -302,7 +302,7 @@ Deno.serve(async (req) => {
             timed_out: true,
           });
         }
-        return json({
+        return json(req, {
           generation_id: generation.id,
           application_status: "generating",
           provider_status: falStatus,
@@ -325,7 +325,7 @@ Deno.serve(async (req) => {
         const failMsg = resultErr ||
           "Provider finished without a video (likely invalid settings). Credits refunded.";
         await failAndRefund(admin, generation, failMsg, falStatus);
-        return json({
+        return json(req, {
           generation_id: generation.id,
           application_status: "failed_refunded",
           failure_message: failMsg,
@@ -367,7 +367,7 @@ Deno.serve(async (req) => {
           failure_message: null,
           completed_at: new Date().toISOString(),
         }).eq("id", generation.id);
-        return json({
+        return json(req, {
           generation_id: generation.id,
           application_status: "completed",
           provider_status: "COMPLETED",
@@ -395,7 +395,7 @@ Deno.serve(async (req) => {
         }).eq("id", generation.id);
       }
 
-      return json({
+      return json(req, {
         generation_id: generation.id,
         application_status: "completed",
         provider_status: "COMPLETED",
@@ -412,7 +412,7 @@ Deno.serve(async (req) => {
     ).slice(0, 500);
 
     if (falStatus === "UNKNOWN" && ageMs < STUCK_MS) {
-      return json({
+      return json(req, {
         generation_id: generation.id,
         application_status: generation.application_status,
         provider_status: falStatus,
@@ -422,7 +422,7 @@ Deno.serve(async (req) => {
 
     await failAndRefund(admin, generation, failMsg, falStatus);
 
-    return json({
+    return json(req, {
       generation_id: generation.id,
       application_status: "failed_refunded",
       failure_message: failMsg,
@@ -431,6 +431,6 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error(e);
-    return err("INTERNAL_ERROR", e instanceof Error ? e.message : "Unexpected error", 500);
+    return err(req, "INTERNAL_ERROR", e instanceof Error ? e.message : "Unexpected error", 500);
   }
 });

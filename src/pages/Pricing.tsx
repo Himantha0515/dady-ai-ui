@@ -64,7 +64,12 @@ export function Pricing() {
       });
     } catch (err) {
       console.error(err);
-      alert(err instanceof Error ? err.message : "Could not start payment");
+      const msg = err instanceof Error ? err.message : "Could not start payment";
+      alert(
+        /edge function|failed to send/i.test(msg)
+          ? "Payment service is unavailable right now. Please try again in a moment, or contact support if it continues."
+          : msg,
+      );
     }
   };
 

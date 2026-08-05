@@ -2,7 +2,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { Logo } from "../components/Logo";
 import { Button, Placeholder } from "../components/ui";
-import { DEMO_LOGIN } from "../lib/auth/demoCredentials";
 import { useAuth } from "../lib/auth/context";
 import "./Auth.css";
 
@@ -138,31 +137,6 @@ export function Auth() {
             }}
           >
             Continue with Google
-          </Button>
-
-          <Button
-            type="button"
-            block
-            variant="ghost"
-            style={{ marginTop: 10 }}
-            disabled={busy}
-            onClick={async () => {
-              setMode("signin");
-              setEmail(DEMO_LOGIN.email);
-              setPassword(DEMO_LOGIN.password);
-              setError(null);
-              setBusy(true);
-              try {
-                await signInWithPassword(DEMO_LOGIN.email, DEMO_LOGIN.password);
-                nav(redirect, { replace: true });
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Demo sign-in failed");
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            Use demo account
           </Button>
 
           <div className="or">

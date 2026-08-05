@@ -150,13 +150,13 @@ Deno.serve(async (req) => {
     const mock = Deno.env.get("MOCK_PROVIDERS") === "true" || !falKey;
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return err("AUTH_REQUIRED", "Sign in required", 401);
+    if (!authHeader) return err(req, "AUTH_REQUIRED", "Sign in required", 401);
 
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
     const { data: userData } = await userClient.auth.getUser();
-    if (!userData.user) return err("AUTH_REQUIRED", "Sign in required", 401);
+    if (!userData.user) return err(req, "AUTH_REQUIRED", "Sign in required", 401);
 
     const body = await req.json();
     const modelId = body.model_id as string;
@@ -180,19 +180,19 @@ Deno.serve(async (req) => {
 
     // 4K is not launched — never charge or submit 4K jobs.
     if (resolution === "4K") {
-      return err(
+      return err(req, 
         "MODEL_CONFIGURATION_INVALID",
         "4K is launching soon. Please choose 720p or 1080p.",
       );
     }
 
     if (!modelId || !prompt || !idempotencyKey) {
-      return err("INVALID_INPUT", "model_id, prompt and idempotency_key are required");
+      return err(req, "INVALID_INPUT", "model_id, prompt and idempotency_key are required");
     }
     // Soft ceiling for abuse; provider-specific limits are enforced above.
     const MAX_PROMPT_CHARS = 12000;
     if (prompt.length > MAX_PROMPT_CHARS) {
-      return err(
+      return err(req, 
         "INVALID_INPUT",
         `Prompt is too long (${prompt.length.toLocaleString()}/${MAX_PROMPT_CHARS.toLocaleString()} characters). Shorten it and try again.`,
       );
@@ -206,7 +206,7 @@ Deno.serve(async (req) => {
       .eq("idempotency_key", idempotencyKey)
       .maybeSingle();
     if (existing) {
-      return json({
+      return json(req, {
         generation_id: existing.id,
         application_status: existing.application_status,
         credits_reserved: existing.credits_reserved,
@@ -220,7 +220,7 @@ Deno.serve(async (req) => {
       .eq("id", modelId)
       .eq("active", true)
       .single();
-    if (!model) return err("MODEL_UNAVAILABLE", "Selected model is unavailable");
+    if (!model) return err(req, "MODEL_UNAVAILABLE", "Selected model is unavailable");
 
     const cfgJsonEarly = (model.configuration ?? {}) as Record<string, unknown>;
     const falEndpointEarly =
@@ -238,7 +238,7 @@ Deno.serve(async (req) => {
     );
     const promptForProvider = compactPromptForProvider(prompt, maxPromptChars);
     if (promptForProvider.length > maxPromptChars) {
-      return err(
+      return err(req, 
         "INVALID_INPUT",
         `Prompt is too long for ${model.friendly_name} (${prompt.length.toLocaleString()}/${maxPromptChars.toLocaleString()} max). Shorten it, or keep a FINAL_VIDEO_PROMPT block under the limit.`,
       );
@@ -246,7 +246,7 @@ Deno.serve(async (req) => {
 
     const allowedRatios: string[] = model.supported_aspect_ratios ?? [];
     if (allowedRatios.length && !allowedRatios.includes(aspectRatio)) {
-      return err("MODEL_CONFIGURATION_INVALID", `Aspect ratio ${aspectRatio} is not supported`);
+      return err(req, "MODEL_CONFIGURATION_INVALID", `Aspect ratio ${aspectRatio} is not supported`);
     }
 
     const creditCost = estimateJobCredits(
@@ -311,7 +311,7 @@ Deno.serve(async (req) => {
 
     if (genErr || !generation) {
       console.error(genErr);
-      return err("INTERNAL_ERROR", "Could not create generation", 500);
+      return err(req, "INTERNAL_ERROR", "Could not create generation", 500);
     }
 
     const { data: reserve, error: reserveErr } = await admin.rpc("reserve_generation_credits", {
@@ -330,7 +330,7 @@ Deno.serve(async (req) => {
 
       if (!wallet || wallet.available_credits < creditCost) {
         await admin.from("generations").update({ application_status: "failed" }).eq("id", generation.id);
-        return err(
+        return err(req, 
           "INSUFFICIENT_CREDITS",
           `You need ${creditCost} credits, but your current balance is ${wallet?.available_credits ?? 0}.`,
           402,
@@ -365,7 +365,7 @@ Deno.serve(async (req) => {
       }
 
       if (needed > 0) {
-        return err("INSUFFICIENT_CREDITS", `You need ${creditCost} credits.`, 402);
+        return err(req, "INSUFFICIENT_CREDITS", `You need ${creditCost} credits.`, 402);
       }
 
       await admin
@@ -502,7 +502,7 @@ Deno.serve(async (req) => {
           application_status: "failed",
           failure_message: shortMsg,
         }).eq("id", generation.id);
-        return err("GENERATION_SUBMISSION_FAILED", shortMsg, 502);
+        return err(req, "GENERATION_SUBMISSION_FAILED", shortMsg, 502);
       }
       const falJson = await falRes.json() as Record<string, unknown>;
       providerRequestId = String(falJson.request_id ?? falJson.id ?? providerRequestId);
@@ -570,7 +570,7 @@ Deno.serve(async (req) => {
         .eq("id", generation.id);
     }
 
-    return json({
+    return json(req, {
       generation_id: generation.id,
       application_status: mock ? "completed" : "generating",
       credits_reserved: creditCost,
@@ -579,6 +579,6 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error(e);
-    return err("INTERNAL_ERROR", "Unexpected error", 500);
+    return err(req, "INTERNAL_ERROR", "Unexpected error", 500);
   }
 });
