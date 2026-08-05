@@ -1,0 +1,115 @@
+.wishlist-page {
+  max-width: 1180px;
+}
+
+.wishlist-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.wishlist-top h1 {
+  margin: 0;
+  font: 800 32px/1.1 var(--font);
+  letter-spacing: -0.03em;
+}
+
+.wishlist-top p {
+  margin: 10px 0 0;
+  font: 400 15px/1.55 var(--font);
+  color: var(--text-muted);
+  max-width: 520px;
+}
+
+.wishlist-top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wishlist-empty-state {
+  padding: 48px 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.wishlist-empty-state strong {
+  color: var(--text);
+  font: 700 18px var(--font);
+}
+
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.wishlist-page-card {
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--elevated);
+  box-shadow: var(--edge);
+  display: flex;
+  flex-direction: column;
+}
+
+.wishlist-page-thumb {
+  display: block;
+  aspect-ratio: 4 / 5;
+  background: #0a1410;
+  overflow: hidden;
+}
+
+.wishlist-page-thumb img,
+.wishlist-page-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #050a08;
+}
+
+.wishlist-page-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wishlist-page-body p {
+  margin: 0;
+  font: 500 13px/1.4 var(--font);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 3.9em;
+}
+
+.wishlist-page-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wishlist-page-tags span {
+  font: 600 11px var(--font);
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+
+.wishlist-page-actions {
+  display: flex;
+  gap: 8px;
+}

@@ -1,0 +1,48 @@
+.icon-rail {
+  width: var(--rail-w);
+  flex: none;
+  background: var(--sidebar);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-rail-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #10b981, #84cc16);
+  margin-bottom: 12px;
+}
+
+.rail-item {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.rail-item small {
+  font: 600 8px var(--font);
+  color: var(--text-dim);
+}
+
+.rail-item.active {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.34);
+  color: var(--primary-soft);
+}
+
+.rail-item.active small {
+  color: var(--primary-soft);
+}

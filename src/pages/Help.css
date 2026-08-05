@@ -1,0 +1,102 @@
+.help-page {
+  max-width: 960px;
+}
+
+.help-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.help-top h1 {
+  margin: 0;
+  font: 800 32px/1.1 var(--font);
+  letter-spacing: -0.03em;
+}
+
+.help-top p {
+  margin: 10px 0 0;
+  font: 400 15px/1.55 var(--font);
+  color: var(--text-muted);
+  max-width: 560px;
+}
+
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.help-card {
+  padding: 20px 22px;
+  border-radius: 18px;
+  background: var(--elevated);
+  border: 1px solid rgba(244, 247, 245, 0.08);
+  box-shadow: var(--edge);
+}
+
+.help-card-accent {
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(132, 204, 22, 0.06));
+  border-color: rgba(163, 230, 53, 0.28);
+}
+
+.help-card h2,
+.help-card h3 {
+  margin: 0 0 10px;
+  font: 700 18px/1.25 var(--font);
+}
+
+.help-card p,
+.help-card li {
+  font: 400 14px/1.55 var(--font);
+  color: var(--text-secondary);
+}
+
+.help-card p {
+  margin: 0 0 10px;
+}
+
+.help-card p:last-child {
+  margin-bottom: 0;
+}
+
+.help-card ul {
+  margin: 0 0 12px;
+  padding-left: 18px;
+}
+
+.help-card li {
+  margin-bottom: 6px;
+}
+
+.help-mail,
+.help-card a {
+  color: var(--lime-soft);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.help-mail:hover,
+.help-card a:hover {
+  text-decoration: underline;
+}
+
+.help-note {
+  color: var(--text) !important;
+}
+
+.help-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 800px) {
+  .help-grid {
+    grid-template-columns: 1fr;
+  }
+}

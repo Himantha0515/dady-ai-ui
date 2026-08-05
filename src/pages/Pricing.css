@@ -1,0 +1,224 @@
+.pricing {
+  background:
+    radial-gradient(900px 420px at 50% -10%, rgba(16, 185, 129, 0.18), transparent 62%),
+    var(--canvas);
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+.pricing-hero {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 64px 80px 0;
+  text-align: center;
+}
+
+.pricing-hero h1 {
+  font: 800 50px/1.08 var(--font);
+  letter-spacing: -0.035em;
+  margin: 0 0 14px;
+}
+
+.pricing-hero > p {
+  font: 400 17px var(--font);
+  color: var(--text-muted);
+  margin: 0 0 30px;
+}
+
+.billing-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  margin-bottom: 8px;
+}
+
+.billing-toggle span {
+  font: 600 13px var(--font);
+  padding: 11px 22px;
+  border-radius: 10px;
+  color: var(--text-muted);
+}
+
+.billing-toggle span.active {
+  background: var(--overlay);
+  color: var(--text);
+}
+
+.billing-toggle em {
+  font: 700 9.5px var(--font);
+  font-style: normal;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: rgba(52, 211, 153, 0.16);
+  color: var(--success);
+  margin-left: 5px;
+}
+
+.pricing-note {
+  font: 400 12.5px var(--font);
+  color: var(--text-dim);
+  margin-bottom: 38px;
+}
+
+.plan-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.plan-card {
+  padding: 26px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  position: relative;
+}
+
+.plan-card.popular {
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(160deg, #10b981, #84cc16) border-box;
+  border: 1.5px solid transparent;
+  box-shadow: 0 24px 70px rgba(16, 185, 129, 0.22);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 26px;
+  font: 700 10px var(--font);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 11px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #10b981, #84cc16);
+  color: #fff;
+}
+
+.plan-name {
+  font: 600 14px var(--font);
+  color: var(--text-secondary);
+  margin-top: 5px;
+}
+
+.plan-price {
+  font: 800 38px var(--font);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  margin: 11px 0 4px;
+}
+
+.plan-price span {
+  font: 500 12.5px var(--font);
+  color: var(--text-muted);
+  margin-left: 5px;
+}
+
+.plan-credits {
+  font: 400 12.5px var(--font);
+  color: var(--text-muted);
+}
+
+.plan-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font: 400 12.5px/1.45 var(--font);
+  color: var(--text-secondary);
+}
+
+.credit-explain {
+  max-width: 1280px;
+  margin: 46px auto 0;
+  padding: 28px;
+  border-radius: 20px;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 44px;
+  align-items: center;
+  width: calc(100% - 160px);
+}
+
+.credit-explain h3 {
+  font: 700 22px var(--font);
+  margin: 0;
+}
+
+.credit-explain p {
+  font: 400 13.5px/1.6 var(--font);
+  color: var(--text-muted);
+  margin: 10px 0 16px;
+}
+
+.split-bar {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+}
+
+.split-bar i {
+  display: block;
+  height: 100%;
+}
+
+.credit-examples {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+
+.credit-examples > div {
+  padding: 14px;
+  border-radius: 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font: 500 12.5px var(--font);
+  color: var(--text-secondary);
+}
+
+.credit-examples strong {
+  font: 700 15px var(--font);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.credit-examples .span2 {
+  grid-column: span 2;
+}
+
+@media (max-width: 1100px) {
+  .pricing-hero,
+  .plan-grid {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .plan-grid,
+  .credit-explain {
+    grid-template-columns: 1fr;
+    width: auto;
+    margin-left: 24px;
+    margin-right: 24px;
+  }
+
+  .pricing-hero h1 {
+    font-size: 34px;
+  }
+}
