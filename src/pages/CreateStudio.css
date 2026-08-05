@@ -814,6 +814,7 @@
 @media (max-width: 1100px) {
   .create-page {
     grid-template-columns: 1fr;
+    padding-bottom: 72px;
   }
 
   .create-panel {

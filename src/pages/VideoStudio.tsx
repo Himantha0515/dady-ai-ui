@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TopNav } from "../layouts/TopNav";
+import { MobileBottomNav } from "../layouts/MobileBottomNav";
 import { AutoPlayVideo } from "../components/AutoPlayVideo";
 import { Button, Placeholder, Progress, Segment } from "../components/ui";
 import { useModels, useWallet } from "../hooks/useCatalog";
@@ -1558,6 +1559,7 @@ export function VideoStudio() {
           </div>
         </div>
       ) : null}
+      <MobileBottomNav />
     </>
   );
 }

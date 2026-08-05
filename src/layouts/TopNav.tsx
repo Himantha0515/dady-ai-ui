@@ -57,7 +57,7 @@ const mobileQuick = [
 
 export function TopNav() {
   const navigate = useNavigate();
-  const { wallet, profile, signOut, user } = useAuth();
+  const { wallet, signOut, user } = useAuth();
   const credits = wallet?.available_credits ?? 0;
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -121,21 +121,11 @@ export function TopNav() {
 
         <div className="topnav-actions">
           <CreditPill value={credits} />
-          {user ? (
-            <button
-              type="button"
-              className="topnav-avatar"
-              aria-label="Log out"
-              title={profile?.full_name ? `${profile.full_name} · Log out` : "Log out"}
-              onClick={() => void signOut().then(() => navigate("/"))}
-            >
-              {(profile?.full_name ?? "U").slice(0, 1).toUpperCase()}
-            </button>
-          ) : (
-            <Button variant="lime" onClick={() => navigate("/auth?redirect=/app")}>
+          {!user ? (
+            <Button variant="lime" className="topnav-cta" onClick={() => navigate("/auth?redirect=/app")}>
               Get Started
             </Button>
-          )}
+          ) : null}
           <button
             type="button"
             className={`topnav-burger${menuOpen ? " is-open" : ""}`}

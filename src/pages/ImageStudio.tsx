@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TopNav } from "../layouts/TopNav";
+import { MobileBottomNav } from "../layouts/MobileBottomNav";
 import { Button, Placeholder, Segment } from "../components/ui";
 import { useModels, useWallet } from "../hooks/useCatalog";
 import { estimateJobCredits, formatModelPriceLabel } from "../lib/pricing/credits";
@@ -816,6 +817,7 @@ export function ImageStudio() {
           </div>
         </div>
       ) : null}
+      <MobileBottomNav />
     </>
   );
 }
