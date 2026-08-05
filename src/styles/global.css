@@ -757,7 +757,7 @@ img {
 @media (max-width: 1100px) {
   :root {
     --sidebar-w: 0px;
-    --topnav-h: 76px;
+    --topnav-h: 56px;
   }
 
   .app-main {
@@ -766,6 +766,14 @@ img {
 
   .app-shell {
     padding-bottom: 72px;
+  }
+
+  .logo--nav {
+    --logo-size: 44px;
+  }
+
+  .logo--nav .logo-img {
+    max-width: 120px;
   }
 
   .brand-atmosphere__blob {

@@ -5,6 +5,7 @@ import { Logo } from "../components/Logo";
 import { AutoPlayVideo } from "../components/AutoPlayVideo";
 import { Button, Chip, Placeholder } from "../components/ui";
 import { usePlatformStats } from "../hooks/useCatalog";
+import { showcaseImages } from "../lib/showcaseImages";
 import { viralPresets, type ViralPresetLabel } from "../lib/viralPresets";
 import "./Landing.css";
 
@@ -23,14 +24,6 @@ const features = [
   { icon: "☺", color: "var(--jade)", title: "AI Avatars", desc: "Create realistic AI avatars in any style." },
   { icon: "♪", color: "var(--premium)", title: "Voice & Audio", desc: "Natural voiceovers in 8 Indian languages." },
   { icon: "▤", color: "var(--blue)", title: "Templates", desc: "Festival, reel and brand packs ready to use." },
-];
-
-const bentoCards = [
-  { label: "Shop Drop", tone: "lime" as const, area: "a" },
-  { label: "Ocean Still", tone: "blue" as const, area: "b" },
-  { label: "Sit Better", tone: "default" as const, area: "c" },
-  { label: "Poster Pack", tone: "pink" as const, area: "d" },
-  { label: "Virtual Fit", tone: "lime" as const, area: "e" },
 ];
 
 const footerLinks = [
@@ -243,14 +236,25 @@ export function Landing() {
         </div>
 
         <div className="bento-grid">
-          {bentoCards.map((c) => (
+          {showcaseImages.map((c) => (
             <button
               key={c.label}
               type="button"
               className={`bento-card bento-${c.area}`}
-              onClick={() => nav("/app/create/image")}
+              onClick={() =>
+                nav("/app/create/image", {
+                  state: { prompt: c.prompt },
+                })
+              }
             >
-              <Placeholder label={c.label} height="100%" variant={c.tone} />
+              <img
+                className="bento-media"
+                src={c.imageUrl}
+                alt={c.label}
+                loading="lazy"
+                decoding="async"
+              />
+              <span className="bento-label">{c.label}</span>
             </button>
           ))}
         </div>
