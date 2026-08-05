@@ -13,8 +13,20 @@ const collage = [
   { title: "Text to Video", meta: "AI-Powered", tone: "lime" as const },
   { title: "AI Image", meta: "From Text", tone: "pink" as const },
   { title: "Product Ads", meta: "AI Generated", tone: "blue" as const },
-  { title: "AI Avatars", meta: "Realistic & Expressive", tone: "default" as const },
-  { title: "AI Voiceover", meta: "Natural · 0:08", tone: "pink" as const },
+  {
+    title: "AI Avatars",
+    meta: "Realistic & Expressive",
+    tone: "default" as const,
+    imageUrl: "/brand/landing-ai-avatar-anime.png",
+    launchingSoon: true,
+  },
+  {
+    title: "AI Voiceover",
+    meta: "Natural · 0:08",
+    tone: "pink" as const,
+    imageUrl: "/brand/landing-ai-voiceover-mic.png",
+    launchingSoon: true,
+  },
 ];
 
 const features = [
@@ -135,16 +147,22 @@ export function Landing() {
             <button
               key={c.title}
               type="button"
-              className="collage-card"
-              onClick={() =>
+              className={`collage-card${c.launchingSoon ? " is-soon" : ""}`}
+              onClick={() => {
+                if (c.launchingSoon) return;
                 nav(
                   c.title.includes("Video") || c.title.includes("Voice")
                     ? "/app/video"
                     : "/app/create/image",
-                )
-              }
+                );
+              }}
             >
-              <Placeholder label="" height="100%" variant={c.tone} />
+              {"imageUrl" in c && c.imageUrl ? (
+                <img className="collage-media" src={c.imageUrl} alt={c.title} loading="lazy" />
+              ) : (
+                <Placeholder label="" height="100%" variant={c.tone} />
+              )}
+              {c.launchingSoon ? <span className="collage-soon">Launching soon</span> : null}
               <div className="collage-meta">
                 <strong>{c.title}</strong>
                 <span>{c.meta}</span>
