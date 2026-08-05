@@ -115,7 +115,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setWallet(mockWallet);
           return;
         }
-        const origin = import.meta.env.VITE_APP_URL ?? window.location.origin;
+        // Always use the live page origin so production never redirects to localhost.
+        const origin = window.location.origin;
         const currentRedirect =
           new URLSearchParams(window.location.search).get("redirect") || "/app";
         sessionStorage.setItem("dady_auth_redirect", currentRedirect);
@@ -158,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: `${import.meta.env.VITE_APP_URL ?? window.location.origin}/auth`,
+            emailRedirectTo: `${window.location.origin}/auth`,
           },
         });
         if (error) throw error;

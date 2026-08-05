@@ -609,11 +609,11 @@ export function Home() {
                   onFocus={() => setFilter(p.label)}
                   onClick={() =>
                     nav("/app/video", {
-                      state: { prompt: `Create a viral ${p.label} style video` },
+                      state: { prompt: p.prompt },
                     })
                   }
                 >
-                  <Placeholder label="" height="100%" variant={p.tone} className="preset-media" />
+                  <AutoPlayVideo src={p.videoUrl} className="preset-media-video" />
                   <span className="preset-label">{p.label}</span>
                   <span className="preset-play">▶</span>
                 </button>

@@ -9,8 +9,8 @@ type Props = {
 };
 
 /**
- * Muted looping autoplay that only runs while in (or near) the viewport —
- * keeps scroll smooth when many clips are on screen.
+ * Muted looping autoplay that prefers playing while in (or near) the viewport.
+ * Tuned for iOS/Android: muted + playsInline + explicit play() retries.
  */
 export function AutoPlayVideo({ src, className, controls = false, poster }: Props) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -19,25 +19,55 @@ export function AutoPlayVideo({ src, className, controls = false, poster }: Prop
     const el = ref.current;
     if (!el) return;
 
+    el.muted = true;
+    el.defaultMuted = true;
+    el.playsInline = true;
+    el.setAttribute("muted", "");
+    el.setAttribute("playsinline", "");
+    el.setAttribute("webkit-playsinline", "");
+
+    let alive = true;
+
     const tryPlay = () => {
+      if (!alive) return;
+      el.muted = true;
       const p = el.play();
       if (p && typeof p.catch === "function") p.catch(() => undefined);
     };
 
+    const onReady = () => tryPlay();
+    el.addEventListener("loadeddata", onReady);
+    el.addEventListener("canplay", onReady);
+    el.addEventListener("loadedmetadata", onReady);
+
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry) return;
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+        if (entry.isIntersecting) {
           tryPlay();
         } else {
           el.pause();
         }
       },
-      { threshold: [0, 0.35, 0.7], rootMargin: "80px 0px" },
+      { threshold: [0, 0.08, 0.25], rootMargin: "120px 0px" },
     );
 
     io.observe(el);
-    return () => io.disconnect();
+    tryPlay();
+
+    const onVis = () => {
+      if (document.visibilityState === "visible") tryPlay();
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      alive = false;
+      io.disconnect();
+      el.removeEventListener("loadeddata", onReady);
+      el.removeEventListener("canplay", onReady);
+      el.removeEventListener("loadedmetadata", onReady);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, [src]);
 
   return (
@@ -51,7 +81,7 @@ export function AutoPlayVideo({ src, className, controls = false, poster }: Prop
       playsInline
       autoPlay
       controls={controls}
-      preload="metadata"
+      preload="auto"
       disableRemotePlayback
     />
   );

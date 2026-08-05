@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MarketingHeader } from "../layouts/MarketingHeader";
 import { Logo } from "../components/Logo";
+import { AutoPlayVideo } from "../components/AutoPlayVideo";
 import { Button, Chip, Placeholder } from "../components/ui";
 import { usePlatformStats } from "../hooks/useCatalog";
 import { viralPresets, type ViralPresetLabel } from "../lib/viralPresets";
@@ -216,11 +217,11 @@ export function Landing() {
               onFocus={() => selectPreset(p.label)}
               onClick={() =>
                 nav("/app/video", {
-                  state: { prompt: `Create a viral ${p.label} style video` },
+                  state: { prompt: p.prompt },
                 })
               }
             >
-              <Placeholder label="" height="100%" variant={p.tone} />
+              <AutoPlayVideo src={p.videoUrl} className="viral-preset-video" />
               <span className="viral-preset-label">{p.label}</span>
               <span className="viral-preset-play">▶</span>
             </button>
@@ -283,15 +284,9 @@ export function Landing() {
             </div>
 
             <div className="site-directory-media">
-              <video
+              <AutoPlayVideo
                 className="site-directory-video"
                 src="/brand/camera-control-preview.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                aria-label="DaDy's camera control preview"
               />
             </div>
           </div>

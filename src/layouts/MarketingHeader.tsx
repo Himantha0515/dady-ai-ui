@@ -51,20 +51,10 @@ const nav: NavItem[] = [
   { label: "Pricing", to: "/pricing" },
 ];
 
-const mobileQuick = [
-  { label: "Features · Image Studio", to: "/app/create/image" },
-  { label: "Features · Video Studio", to: "/app/video" },
-  { label: "Templates", to: "/app/templates" },
-  { label: "Pricing", to: "/pricing" },
-  { label: "Help", to: "/app/help" },
-  { label: "Dashboard", to: "/app" },
-];
-
 export function MarketingHeader({ active }: { active?: string }) {
   const navigate = useNavigate();
   const { user, profile, wallet, signOut } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   const credits = wallet?.available_credits ?? 0;
@@ -89,31 +79,15 @@ export function MarketingHeader({ active }: { active?: string }) {
     };
   }, [profileOpen]);
 
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
-    };
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpen]);
-
   const goAuth = () => {
     navigate("/auth?redirect=/app");
   };
 
   const handleLogout = async () => {
     setProfileOpen(false);
-    setMenuOpen(false);
     await signOut();
     navigate("/");
   };
-
-  const closeMenu = () => setMenuOpen(false);
 
   return (
     <header className="mkt-header">
@@ -208,6 +182,17 @@ export function MarketingHeader({ active }: { active?: string }) {
                     role="menuitem"
                     onClick={() => {
                       setProfileOpen(false);
+                      navigate("/app");
+                    }}
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    type="button"
+                    className="mkt-profile-item"
+                    role="menuitem"
+                    onClick={() => {
+                      setProfileOpen(false);
                       navigate("/app/help");
                     }}
                   >
@@ -226,7 +211,7 @@ export function MarketingHeader({ active }: { active?: string }) {
             </>
           ) : (
             <>
-              <Button variant="ghost" className="mkt-desktop-only" onClick={goAuth}>
+              <Button variant="ghost" onClick={goAuth}>
                 Log in
               </Button>
               <Button variant="lime" onClick={goAuth}>
@@ -234,55 +219,8 @@ export function MarketingHeader({ active }: { active?: string }) {
               </Button>
             </>
           )}
-          <button
-            type="button"
-            className={`mkt-burger${menuOpen ? " is-open" : ""}`}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((v) => !v)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
         </div>
       </div>
-
-      {menuOpen ? (
-        <div className="mkt-mobile" role="dialog" aria-modal="true" aria-label="Menu">
-          <button type="button" className="mkt-mobile-backdrop" aria-label="Close" onClick={closeMenu} />
-          <div className="mkt-mobile-panel">
-            <p className="mkt-mobile-label">Explore</p>
-            <div className="mkt-mobile-list">
-              {mobileQuick.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.to}
-                  className="mkt-mobile-link"
-                  onClick={closeMenu}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-            {user ? (
-              <button type="button" className="mkt-mobile-logout" onClick={() => void handleLogout()}>
-                Log out
-              </button>
-            ) : (
-              <Button
-                variant="lime"
-                onClick={() => {
-                  closeMenu();
-                  goAuth();
-                }}
-              >
-                Get Started
-              </Button>
-            )}
-          </div>
-        </div>
-      ) : null}
     </header>
   );
 }
