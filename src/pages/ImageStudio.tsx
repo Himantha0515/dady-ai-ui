@@ -12,6 +12,7 @@ import {
   type WishlistItem,
 } from "../lib/api/catalog";
 import { isCuratedImageModel } from "../lib/models/curatedImageModels";
+import { imageStudioTemplates } from "../lib/studioTemplates";
 import { isWishlistVideo } from "../lib/wishlistMedia";
 import "./CreateStudio.css";
 
@@ -28,15 +29,6 @@ type ResultShot = {
   modelName?: string | null;
   modelId?: string | null;
 };
-
-const placeholderShots = [
-  ["Studio mug", "lime"],
-  ["Kurta flat-lay", "pink"],
-  ["Storefront", "blue"],
-  ["Festival poster", "default"],
-  ["Avatar look", "pink"],
-  ["Banner wide", "blue"],
-] as const;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -779,11 +771,17 @@ export function ImageStudio() {
                     )}
                   </button>
                 ))
-              : placeholderShots.map(([label, tone]) => (
-                  <div key={label} className="shot">
-                    <Placeholder label={label} variant={tone} />
-                    <span className="play">▶</span>
-                  </div>
+              : imageStudioTemplates.map((t) => (
+                  <button
+                    key={t.label}
+                    type="button"
+                    className="shot template-shot"
+                    onClick={() => setPrompt(t.prompt)}
+                    title={`Use template: ${t.label}`}
+                  >
+                    <img src={t.imageUrl} alt={t.label} loading="lazy" />
+                    <span className="shot-label">{t.label}</span>
+                  </button>
                 ))}
           </div>
         </main>

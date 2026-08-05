@@ -405,6 +405,43 @@
   outline-offset: 2px;
 }
 
+.create-gallery .shot.template-shot {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+
+.create-gallery .shot.template-shot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 48%, rgba(0, 0, 0, 0.72) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.create-gallery .shot .shot-label {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 2;
+  font: 700 11px/1.2 var(--font);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+}
+
+.create-gallery .shot.template-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
 .create-gallery .shot.shot-skeleton {
   cursor: default;
   pointer-events: none;

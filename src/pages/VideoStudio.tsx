@@ -17,21 +17,13 @@ import {
   maxPromptCharsForVideoModel,
 } from "../lib/prompts/compact";
 import { isRecommendedVideoModel } from "../lib/models/recommendedVideoModels";
+import { videoStudioTemplates } from "../lib/studioTemplates";
 import { isWishlistVideo } from "../lib/wishlistMedia";
 import "./CreateStudio.css";
 
 const MAX_REFERENCE_IMAGES = 8;
 const MAX_REFERENCE_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-
-const placeholderShots = [
-  ["Cafe reel", "pink"],
-  ["Product push-in", "lime"],
-  ["Street night", "blue"],
-  ["Festival burst", "default"],
-  ["Avatar talk", "pink"],
-  ["Store teaser", "blue"],
-] as const;
 
 type VideoLaunchState = {
   prompt?: string;
@@ -1440,71 +1432,60 @@ export function VideoStudio() {
           )}
 
           <div className="create-gallery">
-            {(historyLoading
-              ? Array.from({ length: 6 }, (_, i) => ({
-                  id: `skel-${i}`,
-                  url: null as string | null,
-                  label: "",
-                  status: "skeleton",
-                  progressPct: undefined as number | undefined,
-                }))
-              : results.length
-              ? results
-              : placeholderShots.map(([label, tone]) => ({
-                  id: label,
-                  url: null as string | null,
-                  label,
-                  status: "placeholder",
-                  tone,
-                  progressPct: undefined as number | undefined,
-                }))
-            ).map((shot) => {
-              const isSkeleton = shot.status === "skeleton";
-              const isPlaceholder = shot.status === "placeholder";
-              const isPending =
-                !shot.url &&
-                !isPlaceholder &&
-                !isSkeleton &&
-                (shot.status === "generating" ||
-                  shot.status === "queued" ||
-                  shot.status === "validating");
-              const pct = shot.progressPct ?? (isPending ? 8 : undefined);
-              return (
-                <button
-                  key={shot.id}
-                  type="button"
-                  className={`shot${activeId === shot.id ? " active" : ""}${
-                    isSkeleton ? " shot-skeleton" : ""
-                  }`}
-                  disabled={isSkeleton || isPlaceholder}
-                  onClick={() => {
-                    if (!isPlaceholder && !isSkeleton && shot.url) setActiveId(shot.id);
-                  }}
-                >
-                  {shot.url ? (
-                    <AutoPlayVideo src={shot.url} className="shot-video" />
-                  ) : isSkeleton ? (
-                    <div className="shot-skeleton-inner" aria-hidden />
-                  ) : isPlaceholder ? (
-                    <Placeholder
-                      label={shot.label}
-                      variant={"tone" in shot ? (shot.tone as "pink" | "lime" | "blue" | "default") : "default"}
-                    />
-                  ) : isPending ? (
-                    <div className="shot-pending">
-                      <span className="spin" aria-hidden />
-                      <strong>{pct ?? 0}%</strong>
-                      <span>Generating…</span>
-                      <div className="shot-progress">
-                        <i style={{ width: `${pct ?? 0}%` }} />
+            {historyLoading ? (
+              Array.from({ length: 6 }, (_, i) => (
+                <div key={`skel-${i}`} className="shot shot-skeleton" aria-hidden>
+                  <div className="shot-skeleton-inner" />
+                </div>
+              ))
+            ) : results.length ? (
+              results.map((shot) => {
+                const isPending =
+                  !shot.url &&
+                  (shot.status === "generating" ||
+                    shot.status === "queued" ||
+                    shot.status === "validating");
+                const pct = shot.progressPct ?? (isPending ? 8 : undefined);
+                return (
+                  <button
+                    key={shot.id}
+                    type="button"
+                    className={`shot${activeId === shot.id ? " active" : ""}`}
+                    onClick={() => {
+                      if (shot.url) setActiveId(shot.id);
+                    }}
+                  >
+                    {shot.url ? (
+                      <AutoPlayVideo src={shot.url} className="shot-video" />
+                    ) : isPending ? (
+                      <div className="shot-pending">
+                        <span className="spin" aria-hidden />
+                        <strong>{pct ?? 0}%</strong>
+                        <span>Generating…</span>
+                        <div className="shot-progress">
+                          <i style={{ width: `${pct ?? 0}%` }} />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <Placeholder label={shot.label || "Failed"} variant="pink" />
-                  )}
+                    ) : (
+                      <Placeholder label={shot.label || "Failed"} variant="pink" />
+                    )}
+                  </button>
+                );
+              })
+            ) : (
+              videoStudioTemplates.map((t) => (
+                <button
+                  key={t.label}
+                  type="button"
+                  className="shot template-shot"
+                  onClick={() => setPrompt(t.prompt)}
+                  title={`Use template: ${t.label}`}
+                >
+                  <AutoPlayVideo src={t.videoUrl} className="shot-video" />
+                  <span className="shot-label">{t.label}</span>
                 </button>
-              );
-            })}
+              ))
+            )}
           </div>
 
           <div className="steps-row">
