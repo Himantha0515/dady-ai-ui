@@ -3,15 +3,19 @@
 
 insert into public.credit_packs (slug, name, price_inr, credits, validity_days, display_order, metadata)
 values
-  ('mini-99', 'Mini Credit Pack', 99, 100, 30, 1, '{"tagline":"Try Dady with UPI"}'::jsonb)
+  ('mini-99', 'Mini Credit Pack', 99, 100, 30, 1, '{"tagline":"Try Dady with UPI"}'::jsonb),
+  ('starter-299', 'Starter Credit Pack', 299, 300, 30, 2, '{"tagline":"More room to create"}'::jsonb),
+  ('plus-449', 'Plus Credit Pack', 449, 450, 30, 3, '{"tagline":"Best one-time value","popular":true}'::jsonb),
+  ('creator-monthly', 'Creator', 499, 600, 35, 10, '{"billing":"monthly","popular":true}'::jsonb),
+  ('studio-monthly', 'Studio', 999, 1200, 35, 11, '{"billing":"monthly"}'::jsonb)
 on conflict (slug) do nothing;
 
 insert into public.plans (
   slug, name, description, price_inr, billing_interval, included_credits,
   credit_validity_days, priority_level, commercial_usage, team_seats, display_order, metadata
 ) values
-  ('creator', 'Creator', 'For individual creators', 499, 'month', 700, 35, 2, true, 1, 1, '{}'::jsonb),
-  ('studio', 'Studio', 'For growing studios', 999, 'month', 1600, 35, 3, true, 3, 2, '{}'::jsonb),
+  ('creator', 'Creator', 'For individual creators', 499, 'month', 600, 35, 2, true, 1, 1, '{}'::jsonb),
+  ('studio', 'Studio', 'For growing studios', 999, 'month', 1200, 35, 3, true, 3, 2, '{}'::jsonb),
   ('agency', 'Agency', 'For agencies & teams', 2499, 'month', 5000, 35, 4, true, 10, 3, '{"cta":"Talk to us"}'::jsonb)
 on conflict (slug) do nothing;
 

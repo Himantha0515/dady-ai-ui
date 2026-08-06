@@ -78,14 +78,43 @@ function toFalResolution(resolution: string): "480p" | "720p" | "1080p" {
   return "720p";
 }
 
+/** Models that accept fal `resolution` enum ("720p" | "1080p"). */
 function videoSupportsResolutionParam(modelPath: string): boolean {
   const p = modelPath.toLowerCase();
-  // These models either ignore resolution or use a fixed endpoint/default.
-  if (p.includes("kling")) return false;
+  // Hailuo uses 512P/768P strings; LongCat quality is path-encoded.
   if (p.includes("hailuo") || p.includes("minimax")) return false;
-  if (p.includes("ltx")) return false;
   if (p.includes("longcat")) return false;
   return true;
+}
+
+function resolveVideoPathForResolution(modelPath: string, resolution: string): string {
+  const key = normalizeResolutionKey(resolution);
+  if (!modelPath.toLowerCase().includes("longcat")) return modelPath;
+  if (key === "1080p" && modelPath.includes("/720p")) {
+    return modelPath.replace("/720p", "/1080p");
+  }
+  if (key === "720p" && modelPath.includes("/1080p")) {
+    return modelPath.replace("/1080p", "/720p");
+  }
+  return modelPath;
+}
+
+function applyHailuoResolution(
+  falBody: Record<string, unknown>,
+  resolution: string,
+  inputDefaults: Record<string, unknown>,
+) {
+  const key = normalizeResolutionKey(resolution);
+  // Best available Hailuo tier for "1080p" UI choice is 768P.
+  if (key === "1080p") {
+    falBody.resolution = "768P";
+    return;
+  }
+  if (typeof inputDefaults.resolution === "string") {
+    falBody.resolution = inputDefaults.resolution;
+  } else {
+    falBody.resolution = "512P";
+  }
 }
 
 function videoSupportsAspectRatioParam(modelPath: string): boolean {
@@ -255,6 +284,7 @@ Deno.serve(async (req) => {
         credit_cost: model.credit_cost,
         credits_per_unit: model.credits_per_unit,
         pricing_unit: model.pricing_unit ?? model.provider_pricing_unit,
+        estimated_provider_cost_usd: model.estimated_provider_cost_usd,
         margin_pct: model.margin_pct,
         fx_usd_inr: model.fx_usd_inr,
         configuration: (model.configuration ?? {}) as Record<string, unknown>,
@@ -413,6 +443,7 @@ Deno.serve(async (req) => {
       let modelPath = falEndpointOverride || (model.provider_model_id as string);
       if (model.generation_type === "video") {
         modelPath = resolveFalVideoPath(modelPath, Boolean(referenceUrl));
+        modelPath = resolveVideoPathForResolution(modelPath, resolution);
       }
       const falEndpoint =
         `https://queue.fal.run/${modelPath}?fal_webhook=${encodeURIComponent(webhookUrl)}`;
@@ -434,11 +465,13 @@ Deno.serve(async (req) => {
           delete falBody.aspect_ratio;
         }
 
-        if (videoSupportsResolutionParam(modelPath)) {
+        const isHailuo = /hailuo|minimax/i.test(modelPath);
+        if (isHailuo) {
+          applyHailuoResolution(falBody, resolution, inputDefaults);
+        } else if (videoSupportsResolutionParam(modelPath)) {
           // Exact fal enum: "720p" | "1080p" (never "4K" / "4k")
           falBody.resolution = toFalResolution(resolution);
         }
-        // else: keep Hailuo input_defaults.resolution (512P/768P) if present
 
         if (referenceUrl) falBody.image_url = referenceUrl;
         if (referenceUrls[1]) falBody.end_image_url = referenceUrls[1];

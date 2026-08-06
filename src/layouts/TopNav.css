@@ -130,6 +130,11 @@
   font-style: normal;
 }
 
+.topnav-rec-badge--star {
+  color: #1a1200;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
 .topnav-drop-item span {
   font: 400 12px/1.35 var(--font);
   color: var(--text-muted);
@@ -140,6 +145,37 @@
   align-items: center;
   gap: 12px;
   justify-self: end;
+}
+
+.topnav-pricing-btn {
+  appearance: none;
+  width: 120px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.topnav-pricing-btn:hover {
+  transform: translateY(-1px) scale(1.04);
+  border-color: transparent;
+  box-shadow: none;
+  opacity: 0.95;
+}
+
+.topnav-pricing-logo {
+  width: 110px;
+  height: 86px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
 }
 
 .topnav-actions .btn {
@@ -212,6 +248,16 @@
 
   .topnav-links {
     display: none;
+  }
+
+  .topnav-pricing-btn {
+    width: 44px;
+    height: 36px;
+  }
+
+  .topnav-pricing-logo {
+    width: 40px;
+    height: 30px;
   }
 
   .topnav-actions {

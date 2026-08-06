@@ -26,7 +26,8 @@ export function normalizePricingUnit(unit: string | null | undefined): PricingUn
     return "video";
   }
   if (u.includes("image") || u === "img" || u === "images") return "image";
-  if (u === "units" || u === "unit") return "second";
+  // Fal often labels image APIs as "units" — treat as per-image, never as video-seconds.
+  if (u === "units" || u === "unit") return "image";
   return u || "image";
 }
 
@@ -90,14 +91,13 @@ export type ChargeableModel = {
   configuration?: unknown;
 };
 
-export function resolveCreditsPerUnit(model: ChargeableModel, resolution?: string | null): number {
+function resolveCreditsAtKey(model: ChargeableModel, key: string): number {
   const cfg = (model.configuration ?? {}) as Record<string, unknown>;
-  const key = normalizeResolutionKey(resolution);
 
-  // Fixed credit overrides (e.g. Seedance 2.0: 33/sec @720p, 66/sec @1080p)
+  // Fixed credit overrides (e.g. Seedance 2.0: 33/sec @720p)
   const creditsByRes = cfg.credits_per_second_by_resolution as Record<string, number> | undefined;
   if (creditsByRes && typeof creditsByRes === "object") {
-    const fixed = creditsByRes[key] ?? creditsByRes["720p"] ?? creditsByRes["1080p"];
+    const fixed = creditsByRes[key] ?? creditsByRes["720p"];
     if (typeof fixed === "number" && fixed > 0) return Math.ceil(fixed);
   }
 
@@ -106,15 +106,34 @@ export function resolveCreditsPerUnit(model: ChargeableModel, resolution?: strin
   const fx = Number(model.fx_usd_inr ?? DEFAULT_FX_USD_INR);
 
   if (byRes && typeof byRes === "object") {
-    const usd = byRes[key] ?? byRes["720p"] ?? byRes["1080p"];
+    const usd = byRes[key] ?? byRes["720p"];
     if (typeof usd === "number" && usd > 0) {
       return falUsdToCredits(usd, { marginPct: margin, fxUsdInr: fx });
     }
   }
 
+  const falUsd = Number(model.estimated_provider_cost_usd);
+  if (Number.isFinite(falUsd) && falUsd > 0) {
+    return falUsdToCredits(falUsd, { marginPct: margin, fxUsdInr: fx });
+  }
+
   const per = model.credits_per_unit;
   if (typeof per === "number" && per > 0) return per;
   return Math.max(1, model.credit_cost || 1);
+}
+
+export function resolveCreditsPerUnit(model: ChargeableModel, resolution?: string | null): number {
+  const key = normalizeResolutionKey(resolution);
+  const base720 = resolveCreditsAtKey(model, "720p");
+
+  // Platform rule: 1080p always costs 2× the 720p rate for every video model.
+  if (model.generation_type === "video" && key === "1080p") {
+    return Math.max(1, Math.ceil(base720 * 2));
+  }
+  if (model.generation_type === "video" && key === "480p") {
+    return resolveCreditsAtKey(model, "480p");
+  }
+  return base720;
 }
 
 /** Credits to reserve/charge for a job. */
@@ -126,16 +145,16 @@ export function estimateJobCredits(
   const unit = normalizePricingUnit(model.pricing_unit);
   const numImages = Math.max(1, opts?.numImages ?? 1);
 
-  if (model.generation_type === "video" || unit === "second") {
+  // Video only — never multiply image models by duration (fal "units"/compute seconds bug).
+  if (model.generation_type === "video") {
     const seconds = Math.max(1, opts?.durationSeconds ?? DEFAULT_VIDEO_SECONDS);
-    if (unit === "video" || unit === "generation" || unit === "compute_second") {
+    if (unit === "video" || unit === "generation") {
       return Math.max(5, perUnit * numImages);
     }
-    return Math.max(1, Math.ceil(perUnit * seconds));
-  }
-
-  if (unit === "megapixel") {
-    return Math.max(1, perUnit * numImages);
+    if (unit === "second" || unit === "compute_second") {
+      return Math.max(1, Math.ceil(perUnit * seconds));
+    }
+    return Math.max(5, perUnit * numImages);
   }
 
   return Math.max(1, perUnit * numImages);
@@ -199,5 +218,5 @@ export function mapFalCategoryToGenerationType(category: string): "image" | "vid
 }
 
 export const MINI_PACK_CREDITS = 100;
-export const CREATOR_PLAN_CREDITS = 700;
-export const STUDIO_PLAN_CREDITS = 1600;
+export const CREATOR_PLAN_CREDITS = 600;
+export const STUDIO_PLAN_CREDITS = 1200;

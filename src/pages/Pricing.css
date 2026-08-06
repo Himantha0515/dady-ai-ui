@@ -27,6 +27,8 @@
 
 .billing-toggle {
   display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 4px;
   padding: 5px;
   border-radius: 14px;
@@ -35,16 +37,28 @@
   margin-bottom: 8px;
 }
 
-.billing-toggle span {
+.billing-toggle button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   font: 600 13px var(--font);
   padding: 11px 22px;
   border-radius: 10px;
   color: var(--text-muted);
 }
 
-.billing-toggle span.active {
+.billing-toggle button.active {
   background: var(--overlay);
   color: var(--text);
+}
+
+.billing-toggle button.is-soon {
+  opacity: 0.85;
+}
+
+.billing-toggle button.is-soon.active {
+  opacity: 1;
 }
 
 .billing-toggle em {
@@ -61,6 +75,9 @@
   font: 400 12.5px var(--font);
   color: var(--text-dim);
   margin-bottom: 38px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .plan-grid {
@@ -71,6 +88,71 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 18px;
   align-items: start;
+}
+
+.plan-grid--packs {
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  max-width: 1100px;
+  justify-content: center;
+}
+
+.plan-yields {
+  margin-bottom: 14px !important;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.plan-yields li {
+  color: #a7f3d0 !important;
+  font-weight: 500;
+}
+
+.plan-grid--monthly {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 980px;
+}
+
+.yearly-soon {
+  max-width: 520px;
+  margin: 24px auto 0;
+  padding: 48px 32px;
+  text-align: center;
+  border-radius: 22px;
+  background:
+    linear-gradient(160deg, rgba(16, 185, 129, 0.12), transparent 55%),
+    var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.yearly-soon-badge {
+  display: inline-block;
+  font: 700 11px var(--font);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: rgba(52, 211, 153, 0.16);
+  color: var(--success);
+  margin-bottom: 18px;
+}
+
+.yearly-soon h2 {
+  font: 800 28px/1.15 var(--font);
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+}
+
+.yearly-soon p {
+  font: 400 14px/1.55 var(--font);
+  color: var(--text-muted);
+  margin: 0 0 22px;
+}
+
+.pricing-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-muted);
+  font: 400 14px var(--font);
 }
 
 .plan-card {
@@ -211,9 +293,15 @@
   }
 
   .plan-grid,
+  .plan-grid--monthly,
   .credit-explain {
     grid-template-columns: 1fr;
     width: auto;
+    margin-left: 24px;
+    margin-right: 24px;
+  }
+
+  .plan-grid--packs {
     margin-left: 24px;
     margin-right: 24px;
   }

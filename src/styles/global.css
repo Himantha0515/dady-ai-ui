@@ -670,41 +670,74 @@ img {
 .animate-in-delay { animation: fade-up 0.55s ease 0.1s both; }
 .animate-in-delay-2 { animation: fade-up 0.6s ease 0.18s both; }
 
-/* Lightweight route progress (replaces full-screen page loader) */
-.route-progress {
+/* Route transition loader */
+.route-loader {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset: 0;
   z-index: 9999;
-  height: 2px;
-  pointer-events: none;
-  overflow: hidden;
-  background: transparent;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 10, 8, 0.72);
+  backdrop-filter: blur(10px);
+  animation: route-loader-in 0.18s ease-out both;
 }
 
-.route-progress i {
-  display: block;
-  height: 100%;
-  width: 35%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #10b981, #84cc16);
-  animation: route-progress-slide 0.26s ease-out both;
-  box-shadow: 0 0 10px rgba(132, 204, 22, 0.45);
+.route-loader__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  padding: 28px 32px;
+  border-radius: 22px;
+  background:
+    radial-gradient(120px 80px at 50% 0%, rgba(16, 185, 129, 0.22), transparent 70%),
+    rgba(12, 20, 17, 0.95);
+  border: 1px solid rgba(132, 204, 22, 0.22);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
-@keyframes route-progress-slide {
-  0% {
-    transform: translateX(-120%);
+.route-loader__card strong {
+  font: 800 18px/1 var(--font);
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #fff, #a7f3d0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.route-loader__card span {
+  font: 500 13px var(--font);
+  color: var(--text-muted);
+}
+
+.route-loader__ring {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid rgba(132, 204, 22, 0.2);
+  border-top-color: #84cc16;
+  animation: route-loader-spin 0.7s linear infinite;
+}
+
+@keyframes route-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes route-loader-in {
+  from {
     opacity: 0;
   }
-  35% {
+  to {
     opacity: 1;
   }
-  100% {
-    transform: translateX(320%);
-    opacity: 0;
-  }
+}
+
+/* Legacy thin bar kept unused */
+.route-progress {
+  display: none;
 }
 
 .page-transition {
@@ -725,7 +758,8 @@ img {
 
 @media (prefers-reduced-motion: reduce) {
   .page-transition,
-  .route-progress i {
+  .route-loader__ring,
+  .mobile-bottom-nav__link.is-active .mobile-bottom-nav__icon {
     animation: none !important;
   }
 }
@@ -765,7 +799,7 @@ img {
   }
 
   .app-shell {
-    padding-bottom: 72px;
+    padding-bottom: 92px;
   }
 
   .logo--nav {

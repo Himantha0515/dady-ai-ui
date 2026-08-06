@@ -132,6 +132,11 @@
   font-style: normal;
 }
 
+.mkt-rec-badge--star {
+  color: #1a1200;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
 .mkt-drop-item span {
   font: 400 12px/1.35 var(--font);
   color: var(--text-muted);
@@ -142,6 +147,37 @@
   align-items: center;
   gap: 10px;
   justify-self: end;
+}
+
+.mkt-pricing-btn {
+  appearance: none;
+  width: 120px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.mkt-pricing-btn:hover {
+  transform: translateY(-1px) scale(1.04);
+  border-color: transparent;
+  box-shadow: none;
+  opacity: 0.95;
+}
+
+.mkt-pricing-logo {
+  width: 110px;
+  height: 86px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
 }
 
 .mkt-actions .btn {
@@ -321,6 +357,16 @@
     width: 24px;
     height: 24px;
     font-size: 11px;
+  }
+
+  .mkt-pricing-btn {
+    width: 44px;
+    height: 36px;
+  }
+
+  .mkt-pricing-logo {
+    width: 40px;
+    height: 30px;
   }
 
   .mkt-actions {

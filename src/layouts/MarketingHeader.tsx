@@ -12,6 +12,8 @@ type DropItem = {
   to: string;
   state?: Record<string, string>;
   recommended?: boolean;
+  featured?: boolean;
+  badge?: string;
 };
 
 type NavItem =
@@ -36,6 +38,8 @@ const nav: NavItem[] = [
       to: m.to,
       state: { modelName: m.label },
       recommended: true,
+      featured: m.featured,
+      badge: m.badge,
     })),
   },
   {
@@ -119,8 +123,10 @@ export function MarketingHeader({ active }: { active?: string }) {
                     >
                       <strong>
                         {sub.label}
-                        {sub.recommended ? (
-                          <em className="mkt-rec-badge">Recommended</em>
+                        {sub.featured ? (
+                          <em className="mkt-rec-badge mkt-rec-badge--star">{sub.badge ?? "★ Best value"}</em>
+                        ) : sub.recommended ? (
+                          <em className="mkt-rec-badge">{sub.badge ?? "Recommended"}</em>
                         ) : null}
                       </strong>
                       {sub.desc ? <span>{sub.desc}</span> : null}
@@ -141,6 +147,20 @@ export function MarketingHeader({ active }: { active?: string }) {
         </nav>
 
         <div className="mkt-actions">
+          <button
+            type="button"
+            className="mkt-pricing-btn"
+            aria-label="Pricing"
+            title="Pricing"
+            onClick={() => navigate("/pricing")}
+          >
+            <img
+              className="mkt-pricing-logo"
+              src="/brand/pricing-crown.png"
+              alt=""
+              aria-hidden
+            />
+          </button>
           {user ? (
             <>
               <Button variant="ghost" className="mkt-desktop-only" onClick={() => navigate("/app")}>

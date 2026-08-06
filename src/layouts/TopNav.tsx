@@ -6,7 +6,14 @@ import { useAuth } from "../lib/auth/context";
 import { RECOMMENDED_VIDEO_NAV } from "../lib/models/recommendedVideoModels";
 import "./TopNav.css";
 
-type DropItem = { label: string; desc?: string; to: string; state?: Record<string, string> };
+type DropItem = {
+  label: string;
+  desc?: string;
+  to: string;
+  state?: Record<string, string>;
+  featured?: boolean;
+  badge?: string;
+};
 
 type NavItem =
   | { label: string; to: string; items?: undefined }
@@ -29,6 +36,8 @@ const links: NavItem[] = [
       desc: m.desc,
       to: m.to,
       state: { modelName: m.label },
+      featured: m.featured,
+      badge: m.badge,
     })),
   },
   {
@@ -103,7 +112,9 @@ export function TopNav() {
                       <strong>
                         {sub.label}
                         {item.label === "Models" ? (
-                          <em className="topnav-rec-badge">Recommended</em>
+                          <em className={`topnav-rec-badge${sub.featured ? " topnav-rec-badge--star" : ""}`}>
+                            {sub.badge ?? (sub.featured ? "★ Best value" : "Recommended")}
+                          </em>
                         ) : null}
                       </strong>
                       {sub.desc ? <span>{sub.desc}</span> : null}
@@ -120,6 +131,20 @@ export function TopNav() {
         </nav>
 
         <div className="topnav-actions">
+          <button
+            type="button"
+            className="topnav-pricing-btn"
+            aria-label="Pricing"
+            title="Pricing"
+            onClick={() => navigate("/pricing")}
+          >
+            <img
+              className="topnav-pricing-logo"
+              src="/brand/pricing-crown.png"
+              alt=""
+              aria-hidden
+            />
+          </button>
           <CreditPill value={credits} />
           {!user ? (
             <Button variant="lime" className="topnav-cta" onClick={() => navigate("/auth?redirect=/app")}>

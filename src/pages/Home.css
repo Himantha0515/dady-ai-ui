@@ -255,11 +255,13 @@
 
 .vibe-footer {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
-  justify-content: space-between;
-  padding-top: 4px;
+  justify-content: center;
+  text-align: center;
+  padding-top: 8px;
 }
 
 .vibe-meta {
@@ -267,8 +269,13 @@
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  justify-content: center;
   font: 500 12px var(--font);
   color: var(--text-muted);
+}
+
+.vibe-footer .btn {
+  min-width: min(320px, 100%);
 }
 
 .home-tools {

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Chip, CreditPill, Placeholder } from "../components/ui";
 import { useModels, useWallet } from "../hooks/useCatalog";
 import { formatModelPriceLabel } from "../lib/pricing/credits";
-import { isRecommendedVideoModel } from "../lib/models/recommendedVideoModels";
+import { isFeaturedVideoModel, isRecommendedVideoModel } from "../lib/models/recommendedVideoModels";
 import {
   CURATED_IMAGE_MODELS,
   isCuratedImageModel,
@@ -56,8 +56,10 @@ export function Models() {
     });
     if (tab !== "Videos") return rows;
     return [...rows].sort((a, b) => {
-      const ar = isRecommendedVideoModel(a) ? 0 : 1;
-      const br = isRecommendedVideoModel(b) ? 0 : 1;
+      const rank = (m: typeof a) =>
+        isFeaturedVideoModel(m) ? 0 : isRecommendedVideoModel(m) ? 1 : 2;
+      const ar = rank(a);
+      const br = rank(b);
       if (ar !== br) return ar - br;
       return (a.display_order ?? 0) - (b.display_order ?? 0);
     });
@@ -142,7 +144,9 @@ export function Models() {
                 <div>
                   <h3>
                     {m.friendly_name}
-                    {tab === "Videos" && isRecommendedVideoModel(m) ? (
+                    {tab === "Videos" && isFeaturedVideoModel(m) ? (
+                      <em className="model-rec-badge model-rec-badge--star">★ Best value</em>
+                    ) : tab === "Videos" && isRecommendedVideoModel(m) ? (
                       <em className="model-rec-badge">Recommended</em>
                     ) : null}
                   </h3>
@@ -150,7 +154,9 @@ export function Models() {
                 </div>
               </div>
               <div className="chip-row">
-                {tab === "Videos" && isRecommendedVideoModel(m) ? (
+                {tab === "Videos" && isFeaturedVideoModel(m) ? (
+                  <span className="mini-tag green">★ best value</span>
+                ) : tab === "Videos" && isRecommendedVideoModel(m) ? (
                   <span className="mini-tag green">recommended</span>
                 ) : null}
                 {tab === "Images"

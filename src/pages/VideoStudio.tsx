@@ -16,7 +16,7 @@ import {
   compactPromptForProvider,
   maxPromptCharsForVideoModel,
 } from "../lib/prompts/compact";
-import { isRecommendedVideoModel } from "../lib/models/recommendedVideoModels";
+import { isFeaturedVideoModel, isRecommendedVideoModel } from "../lib/models/recommendedVideoModels";
 import { videoStudioTemplates } from "../lib/studioTemplates";
 import { isWishlistVideo } from "../lib/wishlistMedia";
 import "./CreateStudio.css";
@@ -252,10 +252,12 @@ export function VideoStudio() {
             m.category.toLowerCase().includes(q) ||
             m.slug.toLowerCase().includes(q),
         );
-    // Recommended models float to the top of the picker.
+    // Featured → recommended → rest
     return [...list].sort((a, b) => {
-      const ar = isRecommendedVideoModel(a) ? 0 : 1;
-      const br = isRecommendedVideoModel(b) ? 0 : 1;
+      const rank = (m: typeof a) =>
+        isFeaturedVideoModel(m) ? 0 : isRecommendedVideoModel(m) ? 1 : 2;
+      const ar = rank(a);
+      const br = rank(b);
       if (ar !== br) return ar - br;
       return (a.display_order ?? 0) - (b.display_order ?? 0);
     });
@@ -1527,7 +1529,9 @@ export function VideoStudio() {
               >
                 <strong>
                   {m.friendly_name}
-                  {isRecommendedVideoModel(m) ? (
+                  {isFeaturedVideoModel(m) ? (
+                    <em className="model-rec-badge model-rec-badge--star">★ Best value</em>
+                  ) : isRecommendedVideoModel(m) ? (
                     <em className="model-rec-badge">Recommended</em>
                   ) : null}
                 </strong>
